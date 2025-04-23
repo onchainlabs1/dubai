@@ -1,160 +1,118 @@
-🏠 RE-Advisor — Agentic AI for Real‑Estate
+# 🏠 RE-Advisor — Agentic AI for Real-Estate
+*A hack-ready prototype that **perceives, reasons, acts and learns** to optimise real-estate pricing & investments.*
 
-RE‑Advisor is a hack‑ready prototype that demonstrates an agentic AI system — one that perceives, reasons, acts and learns autonomously — applied to real‑estate pricing and investment decisions.
+---
 
-Pillar
+## 🧩 Agentic pillars
 
-Implementation
+| **Pillar**   | **What we implemented**                                                                                         |
+|--------------|-----------------------------------------------------------------------------------------------------------------|
+| Perception   | Live **or** synthetic listings gathered by the `MarketSimulator` (scraping/API-ready).                           |
+| Reasoning    | Groq LLM (`llama3-8b-8192` default, fallback OpenAI) analyses state + ML prediction → chooses an action.          |
+| Action       | Agent calls an **MCP** endpoint (`/pricing/update`) to update the price and returns the decision to the UI.      |
+| Learning     | Online regressor (`river`) retrains after every feedback loop.                                                  |
 
-Perception
+---
 
-Live/synthetic property data ingested via web‑scraping or API, parsed by the MarketSimulator.
+## ✨ Key features
 
-Reasoning
+- **LLM-driven strategy** — natural-language decisions via Groq Llama-3.  
+- **Online ML loop** — real-time occupancy forecasting that improves each cycle.  
+- **MCP plug-in layer** — connect to any pricing engine / CRM via REST.  
+- **Streamlit dashboard** — KPIs, decision card, history table & chart.  
+- **`.env` config** — swap models or back-ends without touching code.
 
-An LLM (Groq mixtral‑8x7b‑32768 by default, fallback to OpenAI) analyses the current state & ML prediction to choose the next action.
+---
 
-Action
+## 🖼️ Architecture (high-level)
 
-The agent calls an (MCP) endpoint to update the price and returns the decision to the UI.
+```text
+┌────────────┐   state    ┌───────────────────┐
+│ Simulator  │──────────▶│   Agent (LLM)      │
+│  /  Data   │           │  + ML + MCP        │
+└────────────┘◀──────────│                   │
+           feedback      └──────┬────────────┘
+                                │  REST
+                                ▼
+                        ┌────────────────┐
+                        │ MCP endpoint   │
+                        └────────────────┘
 
-Learning
+# 1 Clone & enter repo
+git clone https://github.com/onchainlabs1/dubai.git
+cd dubai
 
-A lightweight online regressor (river) continuously re‑trains on feedback after every cycle.
+# 2 (Create virtual-env)
+python -m venv .venv && source .venv/bin/activate
 
-✨ Key Features
+# 3 Install deps
+pip install -r requirements.txt
 
-LLM‑driven strategy — natural‑language reasoning with Mixtral / Llama‑3.
+# 4 Configure secrets
+cp .env.example .env   # edit your keys
 
-Online ML loop — real‑time occupancy forecasting that improves with every step.
-
-MCP integration — pluggable Action layer that can hit any REST endpoint (pricing engine, CRM, etc.).
-
-Streamlit UI — one‑click demo; see state ➜ decision ➜ result JSON instantly.
-
-Config in .env — switch LLM providers or MCP URLs without touching code.
-
-🖼  Architecture (high‑level)
-
-┌───────────┐  state   ┌───────────┐
-│Simulator  │────────▶│  Agent    │
-│(data)     │         │LLM+ML+MCP │
-└───────────┘◀────────│           │
-          feedback    └──┬────────┘
-                          │ REST
-                          ▼
-                    ┌──────────────┐
-                    │ MCP endpoint │
-                    └──────────────┘
-
-🚀 Quick‑start (local)
-
-# 1. Clone and enter the repo (GitLab)
-$ git clone https://gitlab.com/<your-namespace>/re_advisor.git
-$ cd re_advisor
-
-# 2. Create & activate a virtual environment (recommended)
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-
-# 3. Install dependencies
-$ pip install --upgrade pip
-$ pip install -r requirements.txt
-
-# 4. Configure secrets
-$ cp .env.example .env   # then edit your keys
-
-# 5. Run
-$ streamlit run main.py  # http://localhost:8501
+# 5 Run
+streamlit run main.py  # ⇒ http://localhost:8501
 
 Required environment variables
 
 Variable
-
-Description
-
+Purpose
 GROQ_API_KEY
-
-Mandatory — key from https://console.groq.com.
-
+Required â€” create at https://console.groq.com.
+GROQ_MODEL
+Optional â€” default llama3-8b-8192.
 OPENAI_API_KEY
-
-Optional fallback for OpenAI models.
-
+Optional fallback for OpenAI.
 MCP_SERVER_URL
+REST price endpoint (http://localhost:4000 default).
 
-REST endpoint for pricing updates (http://localhost:4000 default).
+☁️ One-click deploy (Streamlit Cloud)
 
-☁️ Deploy with GitLab CI/CD + Streamlit Community Cloud
+1. Fork or point Deploy-UI to onchainlabs1/dubai
+2. Settings → Secrets
+   GROQ_API_KEY   = "gsk_live_…"
+   GROQ_MODEL     = "llama3-8b-8192"
+   MCP_SERVER_URL = "https://your-mcp.io"
+3. Click **Deploy** — Streamlit installs deps & runs main.py
+4. Share the public URL with judges 🚀
 
-1 – GitLab repository setup
+🛠 Tech stack
 
-# after local changes
-$ git remote set-url origin https://gitlab.com/<your-namespace>/re_advisor.git
-$ git add .
-$ git commit -m "Your message"
-$ git push -u origin main  # triggers GitLab pipeline (optional)
+Layer
+Library / Service
+UI
+Streamlit
+LLM
+Groq Cloud (langchain-groq) Â· fallback OpenAI
+Orchestration
+LangChain Community
+ML
+River (online regression)
+Validation
+Pydantic v2
+Action bus
+MCP (HTTP wrapper)
 
-You can create a simple .gitlab-ci.yml to build a Docker image or push the app to Streamlit Cloud.  For hack‑demos the fastest option is still Streamlit Cloud:
-
-Go to https://share.streamlit.io/ → New app → point to your GitLab repo (<namespace>/re_advisor) instead of GitHub.
-
-In Advanced settings → Secrets add:
-
-GROQ_API_KEY = "gsk_live_…"
-MCP_SERVER_URL = "http://your-mcp.com"
-
-Click Deploy.  Streamlit installs requirements.txt and runs main.py automatically.
-
-Share the public URL with stakeholders or judges.
-
-🛠 Tech Stack
-
-Python 3.10+
-
-Streamlit – UI / demo layer
-
-LangChain Community – LLM orchestration (Groq & OpenAI wrappers)
-
-Groq Cloud  or OpenAI – language models
-
-River – incremental ML
-
-Pydantic v2 – data validation
-
-MCP – pluggable REST action layer
-
-📂 Repository layout
+📂 Repo layout
 
 .
-├── main.py            ← Streamlit entry‑point
-├── agent.py           ← Agent logic (LLM + ML + MCP)
+├── main.py            ← Streamlit dashboard entry-point
+├── agent.py           ← Agent logic (LLM + ML + MCP)
 ├── ml_model.py        ← OnlineOccupancyRegressor (River)
-├── simulator.py       ← Market data generator / ingestion stub
-├── mcp_client.py      ← Thin wrapper around HTTP POST
-├── requirements.txt   ← Python dependencies
-├── .env.example       ← Sample env‑vars
+├── simulator.py       ← Data generator / API stub
+├── mcp_client.py      ← Tiny HTTP wrapper for MCP
+├── requirements.txt   ← Python deps
+├── .env.example       ← Sample env-vars
 └── README.md          ← You are here
 
-🔄 Feedback loop
+🔄 Feedback loop (6 steps)
+	1.	sample_state → pick/scrape a property record
+	2.	predict → ML model outputs expected occupancy
+	3.	LLM reasoning → agent decides decrease / maintain / increase
+	4.	MCP call → price update sent to external back-end
+	5.	apply_action → simulator recomputes occupancy & revenue
+	6.	learn_one → regressor updates online on fresh feedback
 
-sample_state — pick (or scrape) a property record.
-
-predict — ML model outputs expected occupancy.
-
-LLM reasoning — Groq model decides decrease_price / maintain / increase.
-
-MCP call — new price is sent to external system.
-
-apply_action — simulator calculates new occupancy & revenue; feedback stored.
-
-learn_one — ML model updates on the latest (features, target).
-
-🤝 Contributing
-
-Fork on GitLab and submit a Merge Request.  Run pre-commit locally and keep all docs in English.
-
-📜 License
-
-Released under the MIT License — see LICENSE.
+⸻
 
