@@ -1,7 +1,8 @@
 streamlit
-openai
+groq
 langchain-core
 langchain-community
-langchain-openai
+langchain-openai      # se ainda usar OpenAI
 river
 requests
+python-dotenv         # se usar load_dotenv no main.py
