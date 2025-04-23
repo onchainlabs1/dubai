@@ -1,48 +1,39 @@
-"""Core agent combining LLM reasoning, ML prediction and MCP actions."""
 import json
+import re
 from typing import Dict, Tuple
 
-from langchain.chat_models import ChatOpenAI
-from ml_model import OnlineOccupancyRegressor
-from mcp_client import MCPClient
+JSON_BLOCK_RE = re.compile(r"\{.*\}", re.DOTALL)
 
-_PROMPT = """You are RE-Advisor, an autonomous real-estate strategist.
-
-Goal: {goal}
-Property state: {state}
-Predicted occupancy (model): {prediction}
-Historical feedback: {history}
-
-Decide ONE action among ['decrease_price','maintain_price','increase_price'].
-Return JSON with keys:
-  action  – string
-  reasoning – short string.
-"""
+# …
 
 class REAdvisorAgent:
-    def __init__(self, openai_api_key: str, mcp_server_url: str, simulator):
-        self.llm = ChatOpenAI(
-            model_name="gpt-4o",
-            temperature=0.2,
-            openai_api_key=openai_api_key,
-        )
-        self.model = OnlineOccupancyRegressor()
-        self.mcp = MCPClient(server_url=mcp_server_url)
-        self.simulator = simulator
-        self.history = []
+    # … __init__ stays the same …
 
+    # ── Public API ─────────────────────────────────────────────
     def decide(self, state: Dict) -> Tuple[str, str]:
-        pred = self.model.predict(state)
+        """Perceive → reason → act → learn (robust JSON parsing)."""
+        prediction = self.model.predict(state)
+
         prompt = _PROMPT.format(
             goal="maximize next-month ROI",
             state=json.dumps(state),
-            prediction=pred,
+            prediction=prediction,
             history=json.dumps(self.history[-5:]),
-        )
-        response = self.llm.predict(prompt)
-        data = json.loads(response)
+        ) + "\n\nRespond ONLY with the JSON."
 
-        # optional MCP call (e.g., update pricing DB)
+        response = self.llm.invoke(prompt)
+        raw = response.content.strip()
+
+        # -- robust JSON extraction --------------------------------------
+        match = JSON_BLOCK_RE.search(raw)
+        try:
+            data = json.loads(match.group(0) if match else raw)
+        except Exception:
+            # fallback if parsing fails
+            data = {"action": "maintain_price",
+                    "reasoning": "Could not parse valid JSON."}
+
+        # Action via MCP
         self.mcp.call(
             "pricing/update",
             {
@@ -52,12 +43,4 @@ class REAdvisorAgent:
         )
 
         self.history.append({"state": state, "decision": data})
-        return data["action"], data["reasoning"]
-
-    @staticmethod
-    def _new_price(price: float, action: str) -> float:
-        if action == "decrease_price":
-            return round(price * 0.95, 2)
-        if action == "increase_price":
-            return round(price * 1.05, 2)
-        return price
+        return data["action"], data.get("reasoning", "")
