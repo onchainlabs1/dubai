@@ -4,6 +4,8 @@ import streamlit as st
 from agent import REAdvisorAgent
 from simulator import MarketSimulator
 
+from dotenv import load_dotenv
+load_dotenv()      # carrega variáveis do .env
 st.set_page_config(page_title="RE-Advisor Demo", layout="wide")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
