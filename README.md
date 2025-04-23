@@ -1,6 +1,6 @@
-🏠 RE‑Advisor — Agentic AI for Real‑Estate
+🏠 RE-Advisor — Agentic AI for Real‑Estate
 
-RE‑Advisor is a hack‑ready prototype that demonstrates an agentic AI system — one that perceives, reasons, acts and learns autonomously — applied to real‑estate pricing and investment decisions.
+RE‑Advisor is a hack‑ready prototype that demonstrates an agentic AI system — one that perceives, reasons, acts and learns autonomously — applied to real‑estate pricing and investment decisions.
 
 Pillar
 
@@ -16,7 +16,7 @@ An LLM (Groq mixtral‑8x7b‑32768 by default, fallback to OpenAI) analyses th
 
 Action
 
-The agent calls a (mock) MCP endpoint to update the price and returns the decision to the UI.
+The agent calls an (MCP) endpoint to update the price and returns the decision to the UI.
 
 Learning
 
@@ -24,36 +24,36 @@ A lightweight online regressor (river) continuously re‑trains on feedback afte
 
 ✨ Key Features
 
-LLM‑driven strategy — natural‑language reasoning with Mixtral / Llama3.
+LLM‑driven strategy — natural‑language reasoning with Mixtral / Llama‑3.
 
-Online ML loop — real‑time occupancy forecasting that improves with every step.
+Online ML loop — real‑time occupancy forecasting that improves with every step.
 
-MCP integration — pluggable Action layer that can hit any REST endpoint (pricing engine, CRM, etc.).
+MCP integration — pluggable Action layer that can hit any REST endpoint (pricing engine, CRM, etc.).
 
-Streamlit UI — one‑click demo; see state ➜ decision ➜ result JSON instantly.
+Streamlit UI — one‑click demo; see state ➜ decision ➜ result JSON instantly.
 
-Config in .env — switch LLM providers or MCP URLs without touching code.
+Config in .env — switch LLM providers or MCP URLs without touching code.
 
-🖼️ High‑level Architecture
+🖼  Architecture (high‑level)
 
-┌────────────┐   state    ┌───────────┐
-│ Simulator  │──────────▶│  Agent    │
-│ (data)     │           │ (LLM+ML)  │
-└────────────┘◀──────────│           │
-          feedback/result└────┬──────┘
-                               │ REST
-                               ▼
-                       ┌────────────────┐
-                       │  MCP endpoint  │
-                       └────────────────┘
+┌───────────┐  state   ┌───────────┐
+│Simulator  │────────▶│  Agent    │
+│(data)     │         │LLM+ML+MCP │
+└───────────┘◀────────│           │
+          feedback    └──┬────────┘
+                          │ REST
+                          ▼
+                    ┌──────────────┐
+                    │ MCP endpoint │
+                    └──────────────┘
 
 🚀 Quick‑start (local)
 
-# 1. Clone and enter the repo
-$ git clone https://github.com/onchainlabs1/dubai.git
-$ cd dubai
+# 1. Clone and enter the repo (GitLab)
+$ git clone https://gitlab.com/<your-namespace>/re_advisor.git
+$ cd re_advisor
 
-# 2. Create & activate a virtual environment (optional but recommended)
+# 2. Create & activate a virtual environment (recommended)
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 
@@ -75,7 +75,7 @@ Description
 
 GROQ_API_KEY
 
-Mandatory — key from https://console.groq.com.
+Mandatory — key from https://console.groq.com.
 
 OPENAI_API_KEY
 
@@ -85,48 +85,50 @@ MCP_SERVER_URL
 
 REST endpoint for pricing updates (http://localhost:4000 default).
 
-☁️ Deploy on Streamlit Cloud (free)
+☁️ Deploy with GitLab CI/CD + Streamlit Community Cloud
 
-Fork this repo, or point the deployment UI to onchainlabs1/dubai.
+1 – GitLab repository setup
+
+# after local changes
+$ git remote set-url origin https://gitlab.com/<your-namespace>/re_advisor.git
+$ git add .
+$ git commit -m "Your message"
+$ git push -u origin main  # triggers GitLab pipeline (optional)
+
+You can create a simple .gitlab-ci.yml to build a Docker image or push the app to Streamlit Cloud.  For hack‑demos the fastest option is still Streamlit Cloud:
+
+Go to https://share.streamlit.io/ → New app → point to your GitLab repo (<namespace>/re_advisor) instead of GitHub.
 
 In Advanced settings → Secrets add:
 
 GROQ_API_KEY = "gsk_live_…"
-MCP_SERVER_URL = "http://your‑mcp.com"
+MCP_SERVER_URL = "http://your-mcp.com"
 
-Click Deploy. Streamlit installs requirements.txt and runs main.py automatically.
+Click Deploy.  Streamlit installs requirements.txt and runs main.py automatically.
 
-Share the public URL with the judges.
+Share the public URL with stakeholders or judges.
 
-Alternative: Hugging Face Spaces (Gradio)
-
-Create gradio_app.py (sample in docs/examples).
-
-Add gradio to requirements.txt.
-
-Push to a new Space → the demo is live in ~1 min.
-
-🛠 Tech Stack
+🛠 Tech Stack
 
 Python 3.10+
 
 Streamlit – UI / demo layer
 
-LangChain – LLM orchestration
+LangChain Community – LLM orchestration (Groq & OpenAI wrappers)
 
-Groq Cloud / OpenAI – language models
+Groq Cloud  or OpenAI – language models
 
 River – incremental ML
 
 Pydantic v2 – data validation
 
-MCP – dummy HTTP endpoint (replace with your backend)
+MCP – pluggable REST action layer
 
 📂 Repository layout
 
 .
 ├── main.py            ← Streamlit entry‑point
-├── agent.py           ← Agent logic (LLM + ML + MCP)
+├── agent.py           ← Agent logic (LLM + ML + MCP)
 ├── ml_model.py        ← OnlineOccupancyRegressor (River)
 ├── simulator.py       ← Market data generator / ingestion stub
 ├── mcp_client.py      ← Thin wrapper around HTTP POST
@@ -134,7 +136,7 @@ MCP – dummy HTTP endpoint (replace with your backend)
 ├── .env.example       ← Sample env‑vars
 └── README.md          ← You are here
 
-🔄 Feedback loop in detail
+🔄 Feedback loop
 
 sample_state — pick (or scrape) a property record.
 
@@ -150,9 +152,9 @@ learn_one — ML model updates on the latest (features, target).
 
 🤝 Contributing
 
-Pull requests are welcome!  Please open an issue to discuss major changes first.Make sure pre‑commit passes and docs stay in English.
+Fork on GitLab and submit a Merge Request.  Run pre-commit locally and keep all docs in English.
 
 📜 License
 
-This prototype is released under the MIT License — see LICENSE for details.
+Released under the MIT License — see LICENSE.
 
