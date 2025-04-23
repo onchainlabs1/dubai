@@ -8,3 +8,4 @@ river
 requests
 python-dotenv
 langchain-groq>=0.1.3langchain-groq>=0.1.3
+langchain-groq>=0.1.3
