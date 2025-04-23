@@ -38,46 +38,7 @@
                         │ MCP endpoint   │
                         └────────────────┘
 
-# 1 Clone & enter repo
-git clone https://github.com/onchainlabs1/dubai.git
-cd dubai
-
-# 2 (Create virtual-env)
-python -m venv .venv && source .venv/bin/activate
-
-# 3 Install deps
-pip install -r requirements.txt
-
-# 4 Configure secrets
-cp .env.example .env   # edit your keys
-
-# 5 Run
-streamlit run main.py  # ⇒ http://localhost:8501
-
-Required environment variables
-
-Variable
-Purpose
-GROQ_API_KEY
-Required â€” create at https://console.groq.com.
-GROQ_MODEL
-Optional â€” default llama3-8b-8192.
-OPENAI_API_KEY
-Optional fallback for OpenAI.
-MCP_SERVER_URL
-REST price endpoint (http://localhost:4000 default).
-
-☁️ One-click deploy (Streamlit Cloud)
-
-1. Fork or point Deploy-UI to onchainlabs1/dubai
-2. Settings → Secrets
-   GROQ_API_KEY   = "gsk_live_…"
-   GROQ_MODEL     = "llama3-8b-8192"
-   MCP_SERVER_URL = "https://your-mcp.io"
-3. Click **Deploy** — Streamlit installs deps & runs main.py
-4. Share the public URL with judges 🚀
-
-🛠 Tech stack
+#  🛠 Tech stack
 
 Layer
 Library / Service
