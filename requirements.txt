@@ -2,7 +2,9 @@ streamlit
 groq
 langchain-core
 langchain-community
-langchain-openai      # se ainda usar OpenAI
+langchain-groq        # NEW – required for ChatGroq
+langchain-openai      # optional fallback
 river
 requests
-python-dotenv         # se usar load_dotenv no main.py
+python-dotenv
+langchain-groq>=0.1.3
