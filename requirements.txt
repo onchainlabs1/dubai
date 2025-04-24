@@ -1,11 +1,19 @@
 streamlit
 groq
+requests
+
+# LangChain stack
 langchain-core
 langchain-community
-langchain-groq        # NEW – required for ChatGroq
-langchain-openai      # optional fallback
+langchain-groq>=0.1.3          # Groq Llama-3 wrapper
+langchain-openai               # fallback if needed
+
+# ML
 river
-requests
+
+# Env & data
 python-dotenv
-langchain-groq>=0.1.3langchain-groq>=0.1.3
-langchain-groq>=0.1.3
+pandas
+
+# LLM direct
+openai>=1.14
